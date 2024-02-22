@@ -179,6 +179,40 @@ func sort(list *Node) {
 	panic("not implemented")
 }
 
+func quickSortByCenter(list *Node) {
+	quickSortByCenterImpl(list, 0, count(list) - 1)
+}
+
+func quickSortByCenterImpl(list *Node, start int, end int) {
+	left := start
+	right := end
+	center, error := getValueByIndex(list, (left+right)/2)
+	if error != nil {
+		fmt.Println(error)
+		return
+	}
+
+	for left <= right {
+		for arr[right] > center {
+			right--
+		}
+		for arr[left] < center {
+			left++
+		}
+		if left <= right {
+			arr[right], arr[left] = arr[left], arr[right]
+			left++
+			right--
+		}
+	}
+	if right > start {
+		quickSortByCenterImpl(arr, start, right)
+	}
+	if left < end {
+		quickSortByCenterImpl(arr, left, end)
+	}
+}
+
 func main() {
 	linkedList := &Node{
 		value: 0,
