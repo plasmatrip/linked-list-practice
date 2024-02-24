@@ -30,83 +30,53 @@ func printList(list *Node) {
 
 // pushFront добавляет новый элемент в начало списка
 func pushFront(list *Node, value int) {
-	if(list.next == nil){
-		next := *list;
-		*list = Node{value: value, next: nil}
-		list.next = &next
-	}
+	next := *list;
+	*list = Node{value: value, next: &next}
 }
 
 // pushBack добавляет новый элемент в конец списка
 func pushBack(list *Node, value int) {
-	if(list.next != nil){
-		node := list.next
-		for node.next != nil {
-			node = node.next
-		}
-		node.next = &Node{value: value, next: nil}
-	}else{
-		list.next = &Node{value: value, next: nil}
+	node := list
+	for node.next != nil {
+		node = node.Next()
 	}
+	node.next = &Node{value: value, next: nil}
 }
 
 // count возвращает кол-во элементов в списке
 func count(list *Node) int {
-	if list == nil {
+	if list == nil{
 		return 0
 	}
-	count := 1
-	node := list.next
-	for node != nil {
-		node = node.next
-		count++
+	count := 0
+	node := list
+	for ; node != nil; count++ {
+		node = node.Next()
 	}
 	return count
 }
 
 // popFront возвращает значение первого элемента и удаляет его из списка
 func popFront(list *Node) int {
-	if list == nil{
-		return -1
-	}
-	if list.next != nil {
-		value := list.value
-		node := *list.next
-		*list = node
-		return value
-	}
-	return -1
+	value := list.value
+	node := *list.Next()
+	*list = node
+	return value
 }
 
 // popBack возвращает значение последнего элемента и удаляет его из списка
 func popBack(list *Node) int {
 	var value int
-	if list == nil{
-		return -1
+	node := list
+	for node.Next() != nil {
+		node = node.Next()
 	}
-	if list.next != nil {
-		prevNode := list
-		currNode := list.next
-		for currNode.next != nil {
-			prevNode = currNode
-			currNode = prevNode.next
-		}
-		value = currNode.value
-		prevNode.next = nil
-		list = prevNode
-		return value
-	}
-	value = list.value
-	list = nil
+	previus(list, index(list, node)).next = nil
 	return value
-	
 }
 
 // isValueInList ищет значение в списке и возвращает true, если оно найдено, в ином случае - false
 func isValueInList(list *Node, value int) bool {
-	if list == nil {
-		return false
-	}
 	node := list
 	for node.value != value && node.next != nil{
 		node = node.next
@@ -116,101 +86,174 @@ func isValueInList(list *Node, value int) bool {
 
 // getValueByIndex возвращает значение из списка по индексу, если оно есть, в ином случае - error("index out of range")
 func getValueByIndex(list *Node, index int) (int, error) {
-	if list == nil {
-		return -1, fmt.Errorf("index out of range")
-	}
-	count := 0
 	node := list
-	for count != index && node.next != nil{
+	for i := 0; node != nil; i++ {
+		if i == index {
+			return node.value, nil
+		}
 		node = node.next
-		count ++
 	}
-	if(count != index){
-		return -1, fmt.Errorf("index out of range")
-	}
-	return node.value, nil
+	return -1, fmt.Errorf("index out of range")
 }
 
 // insert добавляет элемент в список в соответствующий индекс
 func insert(list *Node, index, value int) {
 	if count(list) < index {
-		fmt.Println("Can't insert, empty linked list")
+		fmt.Println("Can't insert, index out of range")
 		return
 	}
-	count := 0
-	var prevNode *Node
-	curNode := list
-	for count != index && curNode.next != nil {
-		prevNode = curNode
-		curNode = curNode.next
-		count++
-	}
-	if(count == index){
-		newNode := &Node{value: value, next: curNode}
-		prevNode.next = newNode
+	if (index == 0){
+		*list = Node{value: value, next: list}
 		return
 	}
-	fmt.Println("Can't insert, index of element out of range")
+	node := list
+	for i := 0; node != nil; i++ {
+		if i == index {
+			previus(list, index).next = &Node{value: value, next: nodeByIndex(list, index)}
+		}
+		node = node.Next()
+	}
 }
 
 // deleteByIndex удаляет элемент из списка по индексу и возвращает его значение. Если индекс неправильный - возвращает error("index out of range")
 func deleteByIndex(list *Node, index int) (int, error) {
 	if count(list) < index {
-		return -1, fmt.Errorf("Can't delete, empty linked list")
+		return -1, fmt.Errorf("Can't delete, index out of range")
 	}
-	count := 0
-	var prevNode *Node
-	curNode := list
-	for count != index && curNode.next != nil {
-		prevNode = curNode
-		curNode = curNode.next
-		count++
-	}
-	if(count == index){
-		value := curNode.value
-		prevNode.next = curNode.next
+	var value int
+	if index == 0 {
+		value = list.value
+		*list = *list.Next()
 		return value, nil
+	}
+	node := list
+	for i := 0; node != nil; i++ {
+		if i == index {
+			value = node.value
+			if node.next == nil {
+				previus(list, index).next = nil
+			} else {
+				previus(list, index).next = node.Next()
+			}
+			return value, nil
+		}
+		node = node.Next()
 	}
 	return -1, fmt.Errorf("index out of range")
 }
 
-// sort сортирует список (*)
-func sort(list *Node) {
-	panic("not implemented")
+func nodeByIndex(list *Node, index int) *Node {
+	count := 0
+	node := list
+	for count != index && node.next != nil {
+		node = node.Next()
+		count++
+	}
+	if count == index {
+		return node
+	}
+	return nil
 }
 
-func quickSortByCenter(list *Node) {
-	quickSortByCenterImpl(list, 0, count(list) - 1)
+func previus(list *Node, index int) *Node {
+	node := list
+	for i := 0; node != nil; i++ {
+		if i == index - 1 {
+			return node
+		}
+		node = node.next
+	}
+	return nil
 }
 
-func quickSortByCenterImpl(list *Node, start int, end int) {
-	left := start
-	right := end
-	center, error := getValueByIndex(list, (left+right)/2)
-	if error != nil {
-		fmt.Println(error)
-		return
+func next(list *Node, index int) *Node {
+	node := list
+	for i := 0; node != nil; i++ {
+		if i == index + 1 {
+			return node
+		}
+		node = node.next
+	}
+	return nil
+}
+
+func swap(list *Node, left, right int) *Node{
+	fmt.Println("-------")
+	printList(list)
+
+	leftPrev := previus(list, left)
+	leftNode := nodeByIndex(list, left)
+	leftNext := next(list, left)
+
+	rightPrev := previus(list, right)
+	rightNode := nodeByIndex(list, right)
+	rightNext := next(list, right)
+
+	leftNode.next = rightNext
+	if rightPrev == leftNode {
+		rightNode.next = leftNode
+	} else {
+		rightPrev.next = leftNode
+		rightNode.next = leftNext
 	}
 
-	for left <= right {
-		for arr[right] > center {
-			right--
+	if leftPrev == nil {
+		list = rightNode
+	} else {
+		leftPrev.next = rightNode
+	}
+	return list
+}
+
+func index(list, node *Node) int {
+	curNode := list
+	for i := 0; curNode != nil; i++ {
+		if curNode == node {
+			return i
 		}
-		for arr[left] < center {
+		curNode = curNode.Next()
+	}
+	return -1
+}
+
+// sort сортирует список (*)
+func sort(list *Node) {
+	//l1 := quickSort(list, 0, count(list) - 1)
+	l2 := *quickSort(list, 0, count(list) - 1)
+	// fmt.Println(l1)
+	//fmt.Println(l2)
+	*list = l2
+	//*list = *quickSort(list, 0, count(list) - 1)
+}
+
+func quickSort(list *Node, start int, end int) *Node {
+	left := start
+	right := end
+	center,_ := getValueByIndex(list, (left + right) / 2)
+	for left <= right {
+		value, _ := getValueByIndex(list, right)
+		for value > center {
+			right--
+			value, _ = getValueByIndex(list, right)
+		}
+		value, _ = getValueByIndex(list, left)
+		for value < center {
 			left++
+			value, _ = getValueByIndex(list, left)
 		}
 		if left <= right {
-			arr[right], arr[left] = arr[left], arr[right]
+			list = swap(list, left, right)
 			left++
 			right--
 		}
 	}
 	if right > start {
-		quickSortByCenterImpl(arr, start, right)
+		list = quickSort(list, start, right)
 	}
 	if left < end {
-		quickSortByCenterImpl(arr, left, end)
+		list = quickSort(list, left, end)
 	}
+	return list
 }
 
 func main() {
@@ -231,38 +274,45 @@ func main() {
 	fmt.Println("Linked list after getting the value of the first element and removing it: ")
 	printList(linkedList)
 	popBack(linkedList)
-	fmt.Println("Linked list after getting the value of the lst element and removing it: ")
+	fmt.Println("Linked list after getting the value of the last element and removing it: ")
 	printList(linkedList)
 	pushFront(linkedList, 5)
 	pushBack(linkedList, 3)
+
 	fmt.Println("Value 3 is present in the linked list: ", isValueInList(linkedList, 3))
 	fmt.Println("Value 5 is present in the linked list: ", isValueInList(linkedList, 5))
 	fmt.Println("Value 0 is present in the linked list: ", isValueInList(linkedList, 0))
 	fmt.Println("Value 7 is present in the linked list: ", isValueInList(linkedList, 7))
+
 	value, error := getValueByIndex(linkedList, 7)
 	if error == nil {
 		fmt.Println("Value of element at index 7: ", value)
 	}else{
 		fmt.Println("7 - ", error)
 	}
+
 	value, error = getValueByIndex(linkedList, 0)
 	if error == nil {
 		fmt.Println("Value of element at index 0: ", value)
 	}else{
 		fmt.Println("0 - ", error)
 	}
+
 	value, error = getValueByIndex(linkedList, 2)
 	if error == nil {
 		fmt.Println("Value of element at index 2: ", value)
 	}else{
 		fmt.Println("2 - ", error)
 	}
+
 	fmt.Println("Linked list after insert value 6 at postion 1: ")
 	insert(linkedList, 1, 6)
 	printList(linkedList)
+
 	fmt.Println("Linked list after insert value 9 at postion 2: ")
 	insert(linkedList, 2, 9)
 	printList(linkedList)
+
 	fmt.Println("Linked list after delete element at postion 3: ")
 	value, error = deleteByIndex(linkedList, 3)
 	if error != nil{
@@ -271,6 +321,7 @@ func main() {
 		fmt.Println("Value of delete element is ", value)
 		printList(linkedList)
 	}
+
 	fmt.Println("Linked list after delete element at postion 4: ")
 	value, error = deleteByIndex(linkedList, 4)
 	if error != nil{
@@ -279,4 +330,33 @@ func main() {
 		fmt.Println("Value of delete element is ", value)
 		printList(linkedList)
 	}
+
+	fmt.Println("Linked list after delete element at postion 0: ")
+	value, error = deleteByIndex(linkedList, 0)
+	if error != nil{
+		fmt.Println(error)
+	}else{
+		fmt.Println("Value of delete element is ", value)
+		printList(linkedList)
+	}
+
+	fmt.Println("Linked list after delete element at postion 2: ")
+	value, error = deleteByIndex(linkedList, 2)
+	if error != nil{
+		fmt.Println(error)
+	}else{
+		fmt.Println("Value of delete element is ", value)
+		printList(linkedList)
+	}
+	fmt.Println("-------")
+
+	insert(linkedList, 1, 3)
+	insert(linkedList, 1, 2)
+	insert(linkedList, 3, 5)
+	printList(linkedList)
+	fmt.Println("-------")
+
+	fmt.Println("\nSorted linked list")
+	sort(linkedList)
+	printList(linkedList)
 }
