@@ -166,28 +166,18 @@ func previus(list *Node, index int) *Node {
 	return nil
 }
 
-func next(list *Node, index int) *Node {
-	node := list
-	for i := 0; node != nil; i++ {
-		if i == index + 1 {
-			return node
-		}
-		node = node.next
-	}
-	return nil
-}
-
 func swap(list *Node, left, right int) *Node{
-	fmt.Println("-------")
+	fmt.Println("-------swap")
 	printList(list)
+	fmt.Println("-------swap")
 
 	leftPrev := previus(list, left)
 	leftNode := nodeByIndex(list, left)
-	leftNext := next(list, left)
+	leftNext := leftNode.Next()
 
 	rightPrev := previus(list, right)
 	rightNode := nodeByIndex(list, right)
-	rightNext := next(list, right)
+	rightNext := rightNode.Next()
 
 	leftNode.next = rightNext
 	if rightPrev == leftNode {
@@ -198,7 +188,7 @@ func swap(list *Node, left, right int) *Node{
 	}
 
 	if leftPrev == nil {
-		list = rightNode
+		*list = *rightNode
 	} else {
 		leftPrev.next = rightNode
 	}
@@ -219,10 +209,10 @@ func index(list, node *Node) int {
 // sort сортирует список (*)
 func sort(list *Node) {
 	//l1 := quickSort(list, 0, count(list) - 1)
-	l2 := *quickSort(list, 0, count(list) - 1)
+	l2 := quickSort(list, 0, count(list) - 1)
 	// fmt.Println(l1)
 	//fmt.Println(l2)
-	*list = l2
+	*list = *l2
 	//*list = *quickSort(list, 0, count(list) - 1)
 }
 
@@ -253,6 +243,11 @@ func quickSort(list *Node, start int, end int) *Node {
 	if left < end {
 		list = quickSort(list, left, end)
 	}
+
+	fmt.Println("---------quickSort")
+	printList(list)
+	fmt.Println("---------quickSort")
+
 	return list
 }
 
@@ -261,21 +256,28 @@ func main() {
 		value: 0,
 		next:  nil,
 	}
+
 	fmt.Printf("Linked list after initialization: ")
 	printList(linkedList)
-	pushFront(linkedList, 5)
+	
 	fmt.Println("Linked list after inserting a value at the beginning: ")
+	pushFront(linkedList, 5)
 	printList(linkedList)
-	pushBack(linkedList, 3)
+
 	fmt.Println("Linked list after inserting a value at the end: ")
+	pushBack(linkedList, 3)
 	printList(linkedList)
+
 	fmt.Println("Lenght of linked list: ", count(linkedList))
-	popFront(linkedList)
+
 	fmt.Println("Linked list after getting the value of the first element and removing it: ")
+	popFront(linkedList)
 	printList(linkedList)
-	popBack(linkedList)
+
 	fmt.Println("Linked list after getting the value of the last element and removing it: ")
+	popBack(linkedList)
 	printList(linkedList)
+
 	pushFront(linkedList, 5)
 	pushBack(linkedList, 3)
 
@@ -356,7 +358,7 @@ func main() {
 	printList(linkedList)
 	fmt.Println("-------")
 
-	fmt.Println("\nSorted linked list")
-	sort(linkedList)
-	printList(linkedList)
+	// fmt.Println("\nSorted linked list")
+	// sort(linkedList)
+	// printList(linkedList)
 }
